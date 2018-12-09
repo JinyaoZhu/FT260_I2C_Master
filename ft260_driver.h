@@ -5,6 +5,8 @@
  * 
  * FT260 I2C-Master driver for Linux
  * I2C clock speed: 100kHz
+ * 
+ * TODO: Add I2C read function.
  */
 
 #ifndef __FT260_DRIVER_H__
