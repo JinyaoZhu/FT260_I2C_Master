@@ -18,4 +18,4 @@ g++ -o test test.c ft260_driver.c -ludev -I./
 
 ## 4. Useful links
 DataSheets: https://www.ftdichip.com/Support/Documents/DataSheets/ICs/DS_FT260.pdf  
-Application Note:https://www.ftdichip.com/Support/Documents/AppNotes/AN_394_User_Guide_for_FT260.pdf
+Application Note: https://www.ftdichip.com/Support/Documents/AppNotes/AN_394_User_Guide_for_FT260.pdf
