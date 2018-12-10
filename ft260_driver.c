@@ -102,16 +102,18 @@ char *get_hid_path(unsigned short vendor_id, unsigned short product_id, unsigned
 }
 
 /******************PUBLIC FUNCTIONS***************************/
-void FT260_Init(FT260_DEVICE_T *self, uint16_t vendor_id, uint16_t product_id, uint16_t interface_id)
+FT260_DEVICE_T* New_FT260(uint16_t vendor_id, uint16_t product_id, uint16_t interface_id)
 {
-    self->vendor_id = vendor_id;
-    self->product_id = product_id;
-    self->interface_id = interface_id;
-    self->i2c_clock_speed = FT260_I2C_CLK_SPEED;
-    self->fd = -1;
-    self->Open = Open;
-    self->I2C_Setup = I2C_Setup;
-    self->I2C_Write = I2C_Write;
+    FT260_DEVICE_T* new_device_ptr = (FT260_DEVICE_T*)malloc(sizeof(FT260_DEVICE_T));
+    new_device_ptr->vendor_id = vendor_id;
+    new_device_ptr->product_id = product_id;
+    new_device_ptr->interface_id = interface_id;
+    new_device_ptr->i2c_clock_speed = FT260_I2C_CLK_SPEED;
+    new_device_ptr->fd = -1;
+    new_device_ptr->Open = Open;
+    new_device_ptr->I2C_Setup = I2C_Setup;
+    new_device_ptr->I2C_Write = I2C_Write;
+    return new_device_ptr;
 }
 
 FT260_STATUS Open(FT260_DEVICE_T *self)
@@ -244,7 +246,6 @@ FT260_STATUS I2C_Write(FT260_DEVICE_T *self,
     }
     else
     {
-        // printf("Error: %d\n", errno);
         perror("write");
         *written_length = -1;
         return FT260_FAIL;

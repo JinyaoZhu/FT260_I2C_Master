@@ -40,6 +40,7 @@
 #include <errno.h>
 
 #include <stdint.h>
+#include <stdbool.h>
 
 // clk speed range 60k~800kbps
 #define FT260_I2C_CLK_SPEED (100) 
@@ -93,13 +94,13 @@ typedef struct FT260_DEVICE_T
 } FT260_DEVICE_T;
 
 /**
- * @name FT260_Init
- * @brief constractor for FT260_DEVICE_T
+ * @name New_FT260
+ * @brief constructor for FT260_DEVICE_T
+ * @return pointer to the FT260_DEVICE_T structure
  */
-void FT260_Init(FT260_DEVICE_T *self,
-                uint16_t vendor_id,
-                uint16_t product_id,
-                uint16_t interface_id);
+FT260_DEVICE_T* New_FT260(uint16_t vendor_id,
+                          uint16_t product_id,
+                          uint16_t interface_id);
 
 /**
  * @name Open

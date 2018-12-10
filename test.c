@@ -83,20 +83,18 @@ void MotorInit(FT260_DEVICE_T *i2c_master)
 
 int main(int argc, char **argv)
 {
-    FT260_DEVICE_T ft260_dev;
-
     // initialize FT260_DEVICE_T structure,
     // set vendor/product/interface IDs and all function pointers.
-    FT260_Init(&ft260_dev, 0x0403, 0x6030, 0);
+    FT260_DEVICE_T* ft260_dev = New_FT260( 0x0403, 0x6030, 0);
 
-    if (FT260_OK != ft260_dev.Open(&ft260_dev))
+    if (FT260_OK != ft260_dev->Open(ft260_dev))
         return -1;
 
-    if (FT260_OK != ft260_dev.I2C_Setup(&ft260_dev))
+    if (FT260_OK != ft260_dev->I2C_Setup(ft260_dev))
         return -1;
 
     Motors_T motors;
-    MotorInit(&ft260_dev);
+    MotorInit(ft260_dev);
 
     for (;;)
     {
@@ -107,7 +105,7 @@ int main(int argc, char **argv)
         motors.m5 = 50;
         motors.m6 = 50;
         // ~6ms per frame
-        if (MotorWrite(&ft260_dev, &motors))
+        if (MotorWrite(ft260_dev, &motors))
             printf("Write Motors success.\n");
         else
             printf("Write Motors error.\n");
