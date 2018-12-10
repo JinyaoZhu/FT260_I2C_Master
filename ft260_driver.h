@@ -41,19 +41,21 @@
 
 #include <stdint.h>
 
-#define FT260_VENDOR_ID    (0x0403)
-#define FT260_PRODUCT_ID   (0x6030)
-#define FT260_INTERFACE_ID (0x0000)
+// clk speed range 60k~800kbps
+#define FT260_I2C_CLK_SPEED (100) 
+
+// show debug infos
+#define FT260_INFO_VERBOSE (false)
 
 // colorize printf()
-#define PRED  "\x1B[31m" // red
-#define PGRN  "\x1B[32m" // green
-#define PYEL  "\x1B[33m" // yellow
-#define PBLU  "\x1B[34m" // blue
-#define PMAG  "\x1B[35m" // magenta
-#define PCYN  "\x1B[36m" // cyan
-#define PWHT  "\x1B[37m" // white
-#define PRST  "\x1B[0m"  // reset/normal
+#define PRED "\x1B[31m" // red
+#define PGRN "\x1B[32m" // green
+#define PYEL "\x1B[33m" // yellow
+#define PBLU "\x1B[34m" // blue
+#define PMAG "\x1B[35m" // magenta
+#define PCYN "\x1B[36m" // cyan
+#define PWHT "\x1B[37m" // white
+#define PRST "\x1B[0m"  // reset/normal
 
 // Device status
 typedef enum
@@ -73,20 +75,46 @@ typedef enum
 } FT260_I2C_FLAG;
 
 
-/**
- * @name FT260_Open
- * @brief open FT260 and show device infos.
- */
-FT260_STATUS FT260_Open();
+typedef struct FT260_DEVICE_T
+{
+    uint16_t vendor_id;
+    uint16_t product_id;
+    uint16_t interface_id;
+    uint16_t i2c_clock_speed;
+    int fd; //file descriptor
+    FT260_STATUS (*Open)(FT260_DEVICE_T *self);
+    FT260_STATUS (*I2C_Setup)(FT260_DEVICE_T *self);
+    FT260_STATUS (*I2C_Write)(FT260_DEVICE_T *self,
+                                uint8_t addr,
+                                FT260_I2C_FLAG i2c_flag,
+                                uint8_t *data_buf_ptr,
+                                uint16_t data_buf_len,
+                                int32_t *written_length);
+} FT260_DEVICE_T;
 
 /**
- * @name FT260_I2C_Setup
+ * @name FT260_Init
+ * @brief constractor for FT260_DEVICE_T
+ */
+void FT260_Init(FT260_DEVICE_T *self,
+                uint16_t vendor_id,
+                uint16_t product_id,
+                uint16_t interface_id);
+
+/**
+ * @name Open
+ * @brief open FT260 and show device infos
+ */
+FT260_STATUS Open(FT260_DEVICE_T *self);
+
+/**
+ * @name I2C_Setup
  * @brief initialize I2C master controller
  */
-FT260_STATUS FT260_I2C_Setup();
+FT260_STATUS I2C_Setup(FT260_DEVICE_T *self);
 
 /**
- * @name FT260_I2C_Write
+ * @name I2C_Write
  * @brief write data with I2C bus
  * @param addr: I2C slave address
  *        i2c_flag: write method(FT260_I2C_NONE, FT260_I2C_START,
@@ -96,10 +124,11 @@ FT260_STATUS FT260_I2C_Setup();
  * @return written_length: how many bytes was written to I2C bus
  *         status: FT260_OK/FT260_FAIL
  */
-FT260_STATUS FT260_I2C_Write(uint8_t addr,
-                             FT260_I2C_FLAG i2c_flag,
-                             uint8_t *data_buf_ptr,
-                             uint16_t data_buf_len,
-                             int32_t *written_length);
+FT260_STATUS I2C_Write(FT260_DEVICE_T *self,
+                       uint8_t addr,
+                       FT260_I2C_FLAG i2c_flag,
+                       uint8_t *data_buf_ptr,
+                       uint16_t data_buf_len,
+                       int32_t *written_length);
 
 #endif /* __FT260_DRIVER_H__ */
