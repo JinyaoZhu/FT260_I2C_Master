@@ -219,7 +219,10 @@ FT260_STATUS I2C_Write(FT260_DEVICE_T *self,
                        uint16_t data_buf_len,
                        int32_t *written_length)
 {
-    uint8_t write_buf[32];
+
+    if(data_buf_len > 4) return FT260_FAIL;
+
+    uint8_t write_buf[64];
     int16_t write_buf_len = 0;
     int32_t res;
     /* I2C write */
@@ -248,6 +251,57 @@ FT260_STATUS I2C_Write(FT260_DEVICE_T *self,
     {
         perror("write");
         *written_length = -1;
+        return FT260_FAIL;
+    }
+}
+
+
+FT260_STATUS I2C_Read(FT260_DEVICE_T *self,
+                       uint8_t addr,
+                       FT260_I2C_FLAG i2c_flag,
+                       uint8_t *data_buf_ptr,
+                       uint16_t data_buf_len,
+                       int32_t *read_length)
+{
+
+    if(data_buf_len > 60) return FT260_FAIL;
+
+    uint8_t write_buf[64];
+    int16_t write_buf_len = 0;
+    int32_t res;
+    /* I2C read */
+    write_buf[0] = 0xC2;
+    /* Slave 7 bit address */
+    write_buf[1] = addr;
+    /* I2C Flag */
+    write_buf[2] = i2c_flag;
+    /* data len */
+    write_buf[3] = data_buf_len >> 8;
+    write_buf[4] = 0xff & data_buf_len;
+    write_buf_len += 4;
+
+    /* send read command */ 
+    res = write(self->fd, write_buf, 5);
+
+    if(res < 0)
+        perror("write");
+
+    // receive data
+    res = read(self->fd, write_buf, 64);
+
+    *read_length = write_buf[1];
+
+    // if (res == data_buf_len+2)
+    if(write_buf[1] == data_buf_len)
+    {
+        /* copy read data */
+        memcpy(data_buf_ptr, &write_buf[2], data_buf_len);
+        // printf("read() read %d bytes\n", res);
+        return FT260_OK;
+    }
+    else
+    {
+        perror("write");
         return FT260_FAIL;
     }
 }

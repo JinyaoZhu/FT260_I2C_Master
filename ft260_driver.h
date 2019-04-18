@@ -1,12 +1,13 @@
 /**
  * @file ft260_driver.h
  * @author J.Zhu
- * @date 2018-12-09
+ * @date   2019-04-18 --- add read function
+ *         2018-12-09 --- initial version
  * 
  * FT260 I2C-Master driver for Linux
  * I2C clock speed: 100kHz
  * 
- * TODO: Add I2C read function.
+ * TODO: read TIMEOUT
  */
 
 #ifndef __FT260_DRIVER_H__
@@ -122,7 +123,7 @@ FT260_STATUS I2C_Setup(FT260_DEVICE_T *self);
  *         FT260_I2C_REPEATED_START, FT260_I2C_STOP, FT260_I2C_START_AND_STOP)
  *        data_buf_ptr: pointer to the data buffer
  *        data_buf_len: data length
- * @return written_length: how many bytes was written to I2C bus
+ * @return written_length: how many bytes were written to I2C bus
  *         status: FT260_OK/FT260_FAIL
  */
 FT260_STATUS I2C_Write(FT260_DEVICE_T *self,
@@ -131,5 +132,23 @@ FT260_STATUS I2C_Write(FT260_DEVICE_T *self,
                        uint8_t *data_buf_ptr,
                        uint16_t data_buf_len,
                        int32_t *written_length);
+
+/**
+ * @name I2C_Read
+ * @brief read data from I2C bus
+ * @param addr: I2C slave address
+ *        i2c_flag: read method(FT260_I2C_NONE, FT260_I2C_START,
+ *         FT260_I2C_REPEATED_START, FT260_I2C_STOP, FT260_I2C_START_AND_STOP)
+ *        data_buf_ptr: pointer to the data buffer
+ *        data_buf_len: data length
+ * @return read_length: how many bytes were read from I2C bus
+ *         status: FT260_OK/FT260_FAIL
+ */
+FT260_STATUS I2C_Read(FT260_DEVICE_T *self,
+                       uint8_t addr,
+                       FT260_I2C_FLAG i2c_flag,
+                       uint8_t *data_buf_ptr,
+                       uint16_t data_buf_len,
+                       int32_t *read_length);
 
 #endif /* __FT260_DRIVER_H__ */
