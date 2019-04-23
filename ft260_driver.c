@@ -278,13 +278,13 @@ FT260_STATUS I2C_Read(FT260_DEVICE_T *self,
     /* data len */
     write_buf[3] = data_buf_len >> 8;
     write_buf[4] = 0xff & data_buf_len;
-    write_buf_len += 4;
+    write_buf_len += 5;
 
     /* send read command */ 
-    res = write(self->fd, write_buf, 5);
+    res = write(self->fd, write_buf, write_buf_len);
 
     if(res < 0)
-        perror("write");
+        perror("write read command");
 
     // receive data
     res = read(self->fd, write_buf, 64);
@@ -301,7 +301,7 @@ FT260_STATUS I2C_Read(FT260_DEVICE_T *self,
     }
     else
     {
-        perror("write");
+        perror("read data");
         return FT260_FAIL;
     }
 }
