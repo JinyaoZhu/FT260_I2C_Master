@@ -25,44 +25,69 @@ typedef struct
 bool MotorWrite(FT260_DEVICE_T *i2c_master, Motors_T *motors)
 {
     uint8_t send_buf[2];
-    FT260_STATUS ftStatus;
-    int32_t writeLength = 0;
-    int writeLength_sum = 0;
+    FT260_STATUS ft_status;
+    int32_t write_length = 0;
+    int write_length_sum = 0;
 
     send_buf[0] = (motors->m1) & (0xff); // HB
     send_buf[1] = 0;                     // LB(no use)
-    ftStatus = i2c_master->I2C_Write(i2c_master, M1_ADDR, FT260_I2C_REPEATED_START, send_buf, 2, &writeLength);
-    writeLength_sum += writeLength;
+    ft_status = i2c_master->I2C_Write(i2c_master, M1_ADDR, FT260_I2C_REPEATED_START, send_buf, 2, &write_length);
+    write_length_sum += write_length;
 
     send_buf[0] = (motors->m2) & (0xff); // HB
     send_buf[1] = 0;                     // LB(no use)
-    ftStatus = i2c_master->I2C_Write(i2c_master, M2_ADDR, FT260_I2C_REPEATED_START, send_buf, 2, &writeLength);
-    writeLength_sum += writeLength;
+    ft_status = i2c_master->I2C_Write(i2c_master, M2_ADDR, FT260_I2C_REPEATED_START, send_buf, 2, &write_length);
+    write_length_sum += write_length;
 
     send_buf[0] = (motors->m3) & (0xff); // HB
     send_buf[1] = 0;                     // LB(no use)
-    ftStatus = i2c_master->I2C_Write(i2c_master, M3_ADDR, FT260_I2C_REPEATED_START, send_buf, 2, &writeLength);
-    writeLength_sum += writeLength;
+    ft_status = i2c_master->I2C_Write(i2c_master, M3_ADDR, FT260_I2C_REPEATED_START, send_buf, 2, &write_length);
+    write_length_sum += write_length;
 
     send_buf[0] = (motors->m4) & (0xff); // HB
     send_buf[1] = 0;                     // LB(no use)
-    ftStatus = i2c_master->I2C_Write(i2c_master, M4_ADDR, FT260_I2C_REPEATED_START, send_buf, 2, &writeLength);
-    writeLength_sum += writeLength;
+    ft_status = i2c_master->I2C_Write(i2c_master, M4_ADDR, FT260_I2C_REPEATED_START, send_buf, 2, &write_length);
+    write_length_sum += write_length;
 
     send_buf[0] = (motors->m5) & (0xff); // HB
     send_buf[1] = 0;                     // LB(no use)
-    ftStatus = i2c_master->I2C_Write(i2c_master, M5_ADDR, FT260_I2C_REPEATED_START, send_buf, 2, &writeLength);
-    writeLength_sum += writeLength;
+    ft_status = i2c_master->I2C_Write(i2c_master, M5_ADDR, FT260_I2C_REPEATED_START, send_buf, 2, &write_length);
+    write_length_sum += write_length;
 
     send_buf[0] = (motors->m6) & (0xff); // HB
     send_buf[1] = 0;                     // LB(no use)
-    ftStatus = i2c_master->I2C_Write(i2c_master, M6_ADDR, FT260_I2C_START_AND_STOP, send_buf, 2, &writeLength);
-    writeLength_sum += writeLength;
+    ft_status = i2c_master->I2C_Write(i2c_master, M6_ADDR, FT260_I2C_START_AND_STOP, send_buf, 2, &write_length);
+    write_length_sum += write_length;
 
-    if (writeLength_sum == 12)
+    if (write_length_sum == 12)
         return true;
     else
         return false;
+}
+
+// TODO: validation with hardware
+bool MotorRead(FT260_DEVICE_T *i2c_master, uint8_t motor_addr)
+{
+    uint8_t buf[64];
+    FT260_STATUS ft_status;
+    int32_t read_length = 0;
+    ft_status = i2c_master->I2C_Read(i2c_master, motor_addr, FT260_I2C_START_AND_STOP, buf, 6, &read_length);
+
+    if(read_length != 6)
+    {
+        // printf("Read Motors error.\n");
+        return false;
+    }
+
+    uint8_t current = buf[0]; // 0.1 A / digit
+    uint8_t status = buf[1]; // STOP:0xFE, START:0x28, RUN:0xFF, LIMIT:0x01...0xFF
+    uint8_t temperature = buf[2]; // 1 celsius degree / digit
+    uint8_t battery = buf[3]; // 0.1 V / digit
+    uint8_t comtime_h = buf[4]; 
+    uint8_t comtime_l = buf[5]; // commutation time (14 bit) 1 sec / digit
+    //FIELD_FREQ[RPM] = 10.000.000 / COMTIME
+
+    return true;
 }
 
 void MotorInit(FT260_DEVICE_T *i2c_master)
@@ -108,7 +133,12 @@ int main(int argc, char **argv)
         if (MotorWrite(ft260_dev, &motors))
             printf("Write Motors success.\n");
         else
-            printf("Write Motors error.\n");
+            
+
+        if(MotorRead(ft260_dev, M1_ADDR))
+            printf("Read Motors success.\n");
+        else
+            printf("Read Motors error.\n");
     }
     return 0;
 }

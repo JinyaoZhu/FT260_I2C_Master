@@ -92,6 +92,12 @@ typedef struct FT260_DEVICE_T
                                 uint8_t *data_buf_ptr,
                                 uint16_t data_buf_len,
                                 int32_t *written_length);
+    FT260_STATUS (*I2C_Read)(FT260_DEVICE_T *self,
+                                uint8_t addr,
+                                FT260_I2C_FLAG i2c_flag,
+                                uint8_t *data_buf_ptr,
+                                uint16_t data_buf_len,
+                                int32_t *read_length);
 } FT260_DEVICE_T;
 
 /**
